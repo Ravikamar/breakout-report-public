@@ -21,7 +21,7 @@ st.markdown("""
 # -----------------------
 @st.cache_data(ttl=10)  # Automatically refresh data every 10 seconds
 def load_data():
-    url = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/breakout_stocks.json"
+    url = "https://raw.githubusercontent.com/ravikamar/breakout-report-public/main/breakout_stocks.json"
     response = requests.get(url)
     if response.status_code == 200:
         return pd.DataFrame(response.json())
