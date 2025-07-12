@@ -1,205 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="10" />
-    <title>breakout - Live Breakout Tracker</title>
-    <link rel="icon" href="brand1.png" type="image/png" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-        :root {
-            --bg-color: #f0f2f5;
-            --text-color: #000;
-            --table-bg: #fff;
-            --card-bg: #fff;
-        }
-        .dark-mode {
-            --bg-color: #121212;
-            --text-color: #fff;
-            --table-bg: #1e1e1e;
-            --card-bg: #1e1e1e;
-        }
-        header {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background-color: #004080;
-            color: white;
-        }
-        header img {
-            height: 40px;
-            margin-right: 1rem;
-        }
-        h1 {
-            font-size: 1.5rem;
-        }
-        main {
-            padding: 1rem;
-        }
-        .summary {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 1rem;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-            min-width: 180px;
-        }
-        .card h2 {
-            font-size: 2rem;
-            color: dodgerblue;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: var(--table-bg);
-        }
-        th, td {
-            padding: 0.5rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            cursor: pointer;
-            background-color: #eee;
-        }
-        .dark-mode th {
-            background-color: #333;
-        }
-        .symbol a {
-            color: dodgerblue;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .dark-mode .symbol a {
-            color: #4ea1ff;
-        }
-        .toggle-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            padding: 6px 12px;
-            cursor: pointer;
-            border: none;
-            background: #ddd;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BreakoutPulse - Live Breakout Tracker</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- DataTables -->
+  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+
+  <!-- Custom Styles -->
+  <style>
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .card {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .card .stat-label {
+      color: #cccccc !important;
+    }
+
+    .card {
+      padding: 12px 10px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #6c757d;
+    }
+
+    .card h4 {
+      font-size: 26px;
+      margin: 0;
+    }
+
+    body.dark-mode table.dataTable {
+      background-color: #1a1a1a !important;
+      color: #e0e0e0 !important;
+      border-color: #444 !important;
+    }
+
+    body.dark-mode table.dataTable thead th {
+      background-color: #2c2c2c !important;
+      color: #fff !important;
+      border-bottom: 1px solid #444 !important;
+    }
+
+    body.dark-mode table.dataTable tbody td {
+      background-color: #1a1a1a !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode table.dataTable tbody tr:nth-child(even) td {
+      background-color: #2a2a2a !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_filter input,
+    body.dark-mode .dataTables_wrapper .dataTables_length select {
+      background-color: #2a2a2a !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+      background-color: #1e1e1e !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: #007bff !important;
+      color: #fff !important;
+    }
+
+    .symbol a {
+      font-weight: bold;
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .symbol a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 10px;
+    }
+
+    #lastUpdated {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    body.dark-mode #lastUpdated {
+      color: #ccc;
+    }
+  </style>
 </head>
+
 <body>
-    <header>
-        <img src="brand1.png" alt="breakout Logo" />
-        <h1>breakout - Live Breakout Tracker</h1>
-        <button class="toggle-btn" onclick="toggleMode()">Toggle Mode</button>
-    </header>
-    <main>
-        <p>Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
-        <div class="summary">
-            <div class="card">
-                <div>Total Breakouts</div>
-                <h2 id="total">0</h2>
-            </div>
-            <div class="card">
-                <div>Top Score</div>
-                <h2 id="score">0</h2>
-            </div>
-            <div class="card">
-                <div>Top Gap %</div>
-                <h2 id="gap">0%</h2>
-            </div>
+<div class="container">
+  <div class="container-fluid my-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><img src="brand.png" alt="Logo" width="40" class="me-2">BreakoutPulse - Live Breakout Tracker</h2>
+      <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">Toggle Theme</button>
+    </div>
+
+    <p>Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
+    <div id="lastUpdated">Last updated: <span id="lastUpdatedTime">Loading...</span></div>
+
+    <div class="row text-center mb-3">
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Total Breakouts</div>
+          <h4 id="total" class="text-primary">0</h4>
         </div>
-        <table id="breakoutTable">
-            <thead>
-                <tr>
-                    <th onclick="sortTable(0)">Symbol</th>
-                    <th onclick="sortTable(1)">Time</th>
-                    <th onclick="sortTable(2)">Type</th>
-                    <th onclick="sortTable(3)">High</th>
-                    <th onclick="sortTable(4)">Low</th>
-                    <th onclick="sortTable(5)">LTP</th>
-                    <th onclick="sortTable(6)">Volume</th>
-                    <th onclick="sortTable(7)">Score</th>
-                    <th onclick="sortTable(8)">Gap %</th>
-                    <th onclick="sortTable(9)">DATR</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </main>
-    <script>
-        function toggleMode() {
-            document.body.classList.toggle("dark-mode");
+      </div>
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Top Score</div>
+          <h4 id="score" class="text-primary">0</h4>
+        </div>
+      </div>
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Top Gap %</div>
+          <h4 id="gap" class="text-primary">0%</h4>
+        </div>
+      </div>
+    </div>
+
+    <table id="breakoutTable" class="table table-striped table-bordered table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Time</th>
+          <th>Type</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>LTP</th>
+          <th>Volume</th>
+          <th>Score</th>
+          <th>Gap %</th>
+          <th>DATR %</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+  }
+
+  function formatISTDateTime(isoStr) {
+    const dt = new Date(isoStr);
+    const options = {
+      year: 'numeric', month: 'short', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: true, timeZone: 'Asia/Kolkata'
+    };
+    return dt.toLocaleString('en-IN', options) + ' IST';
+  }
+
+  function loadBreakoutData() {
+    fetch("breakout_stocks.json")
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.querySelector("#breakoutTable tbody");
+        tbody.innerHTML = "";
+        if (data.length === 0) return;
+
+        let total = data.length;
+        let maxScore = 0;
+        let maxGap = 0;
+
+        // Get generated_at timestamp
+        const lastUpdated = data[0].generated_at;
+        if (lastUpdated) {
+          document.getElementById("lastUpdatedTime").textContent = formatISTDateTime(lastUpdated);
         }
 
-        fetch("breakout_stocks.json")
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector("#breakoutTable tbody");
-                let total = 0, maxScore = 0, maxGap = 0;
-                data.forEach(row => {
-                    const tr = document.createElement("tr");
-                    tr.innerHTML = `
-                        <td class="symbol"><a href="#">${{row.symbol}}</a></td>
-                        <td>${{row.breakout_time}}</td>
-                        <td>${{row.type.toUpperCase()}}</td>
-                        <td>${{row.high_9_15}}</td>
-                        <td>${{row.low_9_15}}</td>
-                        <td>${{row.ltp_at_breakout}}</td>
-                        <td>${{row.volume}}</td>
-                        <td>${{row.score}}</td>
-                        <td>${{parseFloat(row.gap_pct).toFixed(2)}}%</td>
-                        <td>${{row.datr}}</td>
-                    `;
-                    tbody.appendChild(tr);
-                    total++;
-                    if (row.score > maxScore) maxScore = row.score;
-                    if (row.gap_pct > maxGap) maxGap = row.gap_pct;
-                });
-                document.getElementById("total").textContent = total;
-                document.getElementById("score").textContent = maxScore;
-                document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
-            });
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="symbol"><a href="#">${row.symbol}</a></td>
+            <td>${row.breakout_time}</td>
+            <td>${row.type.toUpperCase()}</td>
+            <td>${row.high_9_15}</td>
+            <td>${row.low_9_15}</td>
+            <td>${row.ltp_at_breakout}</td>
+            <td>${row.volume}</td>
+            <td>${row.score}</td>
+            <td>${parseFloat(row.gap_pct).toFixed(2)}%</td>
+            <td>${row.datr}</td>
+          `;
+          tbody.appendChild(tr);
 
-        function sortTable(n) {
-            const table = document.getElementById("breakoutTable");
-            let switching = true, dir = "asc", switchcount = 0;
-            while (switching) {
-                switching = false;
-                let rows = table.rows;
-                for (let i = 1; i < (rows.length - 1); i++) {
-                    let shouldSwitch = false;
-                    let x = rows[i].getElementsByTagName("TD")[n];
-                    let y = rows[i + 1].getElementsByTagName("TD")[n];
-                    let xVal = isNaN(x.innerHTML) ? x.innerHTML.toLowerCase() : parseFloat(x.innerHTML);
-                    let yVal = isNaN(y.innerHTML) ? y.innerHTML.toLowerCase() : parseFloat(y.innerHTML);
-                    if ((dir == "asc" && xVal > yVal) || (dir == "desc" && xVal < yVal)) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    switchcount++;
-                } else {
-                    if (switchcount == 0 && dir == "asc") {
-                        dir = "desc";
-                        switching = true;
-                    }
-                }
-            }
+          if (row.score > maxScore) maxScore = row.score;
+          if (row.gap_pct > maxGap) maxGap = row.gap_pct;
+        });
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("score").textContent = maxScore;
+        document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
+
+        if ($.fn.DataTable.isDataTable('#breakoutTable')) {
+          $('#breakoutTable').DataTable().destroy();
         }
-    </script>
+
+        $('#breakoutTable').DataTable({
+          pageLength: 10,
+          lengthMenu: [10, 25, 50, 100],
+        });
+      });
+  }
+
+  loadBreakoutData();
+  setInterval(loadBreakoutData, 10000);
+</script>
+<script>
+  // Set theme on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark" || savedTheme === null) {
+      document.body.classList.add("dark-mode");
+    }
+  });
+
+  // Theme toggle function
+  function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }
+</script>
+
 </body>
 </html>
