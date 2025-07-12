@@ -1,1219 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BreakoutPulse - Live Breakout Tracker</title>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Breakout Stock Tracker</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css">
-        <style>
-            body {
-                margin: 30px;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 13px;
-                background: #f9f9f9;
-            }
-            h2 {
-                margin-bottom: 10px;
-                font-size: 20px;
-                text-align: center;
-            }
-            .table-wrapper {
-                max-width: 1100px;
-                margin: auto;
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            }
-            table {
-                font-size: 12px;
-                line-height: 1.3;
-                width: 100% !important;
-            }
-            td, th {
-                padding: 4px 6px !important;
-                text-align: center;
-                vertical-align: middle;
-                white-space: nowrap;
-            }
-            p {
-                text-align: center;
-                margin-bottom: 20px;
-                font-size: 14px;
-                color: #555;
-            }
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- DataTables -->
+  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
 
-            /* 🌙 Dark Mode Enhancements */
-            body.dark-mode {
-                background-color: #121212;
-                color: #e0e0e0;
-            }
-            body.dark-mode .table-wrapper {
-                background-color: #1e1e1e;
-                box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-            }
-            body.dark-mode table {
-                color: #e0e0e0;
-                background-color: #1e1e1e;
-            }
-            body.dark-mode th {
-                background-color: #2c2c2c;
-                color: #ffffff;
-                border-color: #444;
-            }
-            body.dark-mode td {
-                background-color: #1e1e1e;
-                border-color: #444;
-                color: #d8d8d8;
-            }
-            body.dark-mode tr:nth-child(even) td {
-                background-color: #1b1b1b;
-            }
-            body.dark-mode tr:hover td {
-                background-color: #292929 !important;
-            }
-            body.dark-mode .dataTables_wrapper .dataTables_filter input,
-            body.dark-mode .dataTables_wrapper .dataTables_length select {
-                background-color: #2c2c2c;
-                color: #e0e0e0;
-                border: 1px solid #555;
-            }
-            body.dark-mode .btn-outline-secondary {
-                color: #ccc;
-                border-color: #666;
-            }
-            body.dark-mode .btn-outline-secondary:hover {
-                background-color: #333;
-                color: #fff;
-            }
-        </style>
+  <!-- Custom Styles -->
+  <style>
+    body.dark-mode {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
 
-        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js"></script>
-    </head>
-    <body class="dark-mode">
-        <h2>📈 Breakout Stock Tracker</h2>
-        <p>Found 83/250 Breakout Opportunity Stocks as of 12-Jul-25 02:54:48 AM.</p>
+    body.dark-mode .card {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+    }
 
-        <div style="text-align:right; margin: 10px 20px;">
-            <button id="toggle-theme" class="btn btn-sm btn-outline-secondary">🌙 Toggle Dark Mode</button>
+    body.dark-mode .card .stat-label {
+      color: #cccccc !important;
+    }
+
+    .card {
+      padding: 12px 10px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #6c757d;
+    }
+
+    .card h4 {
+      font-size: 26px;
+      margin: 0;
+    }
+
+    body.dark-mode table.dataTable {
+      background-color: #1a1a1a !important;
+      color: #e0e0e0 !important;
+      border-color: #444 !important;
+    }
+
+    body.dark-mode table.dataTable thead th {
+      background-color: #2c2c2c !important;
+      color: #fff !important;
+      border-bottom: 1px solid #444 !important;
+    }
+
+    body.dark-mode table.dataTable tbody td {
+      background-color: #1a1a1a !important;
+      color: #e0e0e0 !important;
+    }
+
+    body.dark-mode table.dataTable tbody tr:nth-child(even) td {
+      background-color: #2a2a2a !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_filter input,
+    body.dark-mode .dataTables_wrapper .dataTables_length select {
+      background-color: #2a2a2a !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
+      background-color: #1e1e1e !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+    }
+
+    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: #007bff !important;
+      color: #fff !important;
+    }
+
+    .symbol a {
+      font-weight: bold;
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .symbol a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 10px;
+    }
+
+    #lastUpdated {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    body.dark-mode #lastUpdated {
+      color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <div class="container-fluid my-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><img src="brand.png" alt="Logo" width="40" class="me-2">BreakoutPulse - Live Breakout Tracker</h2>
+      <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">Toggle Theme</button>
+    </div>
+
+    <p>Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
+    <div id="lastUpdated">Last updated: <span id="lastUpdatedTime">Loading...</span></div>
+
+    <div class="row text-center mb-3">
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Total Breakouts</div>
+          <h4 id="total" class="text-primary">0</h4>
         </div>
-
-        <div class="table-responsive">
-           <div class="table-wrapper">
-            <table border="1" class="dataframe table table-striped table-hover table-bordered compact">
-  <thead>
-    <tr style="text-align: right;">
-      <th>Symbol</th>
-      <th>Breakout Time</th>
-      <th>9_15_H_L</th>
-      <th>LTP at Breakout</th>
-      <th>Volume</th>
-      <th>Gap %</th>
-      <th>9:15 Gap %</th>
-      <th>DATR %</th>
-      <th>% Move</th>
-      <th>Type</th>
-      <th>Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ALUPIN" target="_blank" style="text-decoration:none;font-weight:bold;">LUPIN</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1962.8/1961.0 (Δ: 1.8)</td>
-      <td>1957.40</td>
-      <td>23210</td>
-      <td>8.03</td>
-      <td>0.23</td>
-      <td>4.1</td>
-      <td>-0.18%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>6</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASYNGENE" target="_blank" style="text-decoration:none;font-weight:bold;">SYNGENE</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>636.9/635.0 (Δ: 1.9)</td>
-      <td>637.00</td>
-      <td>5065</td>
-      <td>3.81</td>
-      <td>2.38</td>
-      <td>17.1</td>
-      <td>0.02%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>6</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AONGC" target="_blank" style="text-decoration:none;font-weight:bold;">ONGC</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>243.4/242.8 (Δ: 0.6)</td>
-      <td>243.49</td>
-      <td>185572</td>
-      <td>3.64</td>
-      <td>0.91</td>
-      <td>19.7</td>
-      <td>0.04%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>6</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACHAMBLFERT" target="_blank" style="text-decoration:none;font-weight:bold;">CHAMBLFERT</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>559.0/558.5 (Δ: 0.5)</td>
-      <td>561.50</td>
-      <td>40333</td>
-      <td>20.15</td>
-      <td>1.49</td>
-      <td>3.4</td>
-      <td>0.45%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AADANIPORTS" target="_blank" style="text-decoration:none;font-weight:bold;">ADANIPORTS</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1444.0/1441.0 (Δ: 3.0)</td>
-      <td>1445.30</td>
-      <td>29290</td>
-      <td>8.50</td>
-      <td>15.00</td>
-      <td>15.0</td>
-      <td>0.09%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AOFSS" target="_blank" style="text-decoration:none;font-weight:bold;">OFSS</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>9013.0/8975.5 (Δ: 37.5)</td>
-      <td>8973.00</td>
-      <td>3557</td>
-      <td>8.06</td>
-      <td>9.37</td>
-      <td>19.5</td>
-      <td>-0.03%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ANIFTYNXT50" target="_blank" style="text-decoration:none;font-weight:bold;">NIFTYNXT50</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>68931.9/68897.9 (Δ: 34.0)</td>
-      <td>68987.25</td>
-      <td>0</td>
-      <td>10.43</td>
-      <td>0.30</td>
-      <td>6.2</td>
-      <td>0.08%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACDSL" target="_blank" style="text-decoration:none;font-weight:bold;">CDSL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1793.5/1789.0 (Δ: 4.5)</td>
-      <td>1794.90</td>
-      <td>111878</td>
-      <td>5.15</td>
-      <td>7.92</td>
-      <td>8.9</td>
-      <td>0.08%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AKALYANKJIL" target="_blank" style="text-decoration:none;font-weight:bold;">KALYANKJIL</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>577.5/575.6 (Δ: 1.9)</td>
-      <td>572.50</td>
-      <td>232076</td>
-      <td>12.01</td>
-      <td>29.61</td>
-      <td>10.3</td>
-      <td>-0.55%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMIDCPNIFTY" target="_blank" style="text-decoration:none;font-weight:bold;">MIDCPNIFTY</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>13408.5/13404.2 (Δ: 4.3)</td>
-      <td>13423.60</td>
-      <td>0</td>
-      <td>5.05</td>
-      <td>5.16</td>
-      <td>2.9</td>
-      <td>0.11%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ANATIONALUM" target="_blank" style="text-decoration:none;font-weight:bold;">NATIONALUM</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>189.7/189.2 (Δ: 0.5)</td>
-      <td>189.95</td>
-      <td>192185</td>
-      <td>7.62</td>
-      <td>13.57</td>
-      <td>12.6</td>
-      <td>0.13%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AIDFCFIRSTB" target="_blank" style="text-decoration:none;font-weight:bold;">IDFCFIRSTB</a></td>
-      <td>08-Jul 09:30 AM</td>
-      <td>77.8/77.8 (Δ: 0.0)</td>
-      <td>77.94</td>
-      <td>256602</td>
-      <td>46.67</td>
-      <td>38.00</td>
-      <td>0.7</td>
-      <td>0.17%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>5</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AHDFCAMC" target="_blank" style="text-decoration:none;font-weight:bold;">HDFCAMC</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>5145.5/5106.5 (Δ: 39.0)</td>
-      <td>5162.00</td>
-      <td>36786</td>
-      <td>17.19</td>
-      <td>2.26</td>
-      <td>35.3</td>
-      <td>0.32%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AICICIBANK" target="_blank" style="text-decoration:none;font-weight:bold;">ICICIBANK</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1434.7/1432.6 (Δ: 2.1)</td>
-      <td>1435.70</td>
-      <td>54386</td>
-      <td>20.67</td>
-      <td>15.08</td>
-      <td>11.7</td>
-      <td>0.07%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ANAUKRI" target="_blank" style="text-decoration:none;font-weight:bold;">NAUKRI</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>1444.3/1442.2 (Δ: 2.1)</td>
-      <td>1449.40</td>
-      <td>60624</td>
-      <td>0.24</td>
-      <td>12.32</td>
-      <td>5.0</td>
-      <td>0.35%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACANBK" target="_blank" style="text-decoration:none;font-weight:bold;">CANBK</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>114.5/114.0 (Δ: 0.5)</td>
-      <td>114.50</td>
-      <td>511403</td>
-      <td>46.00</td>
-      <td>47.00</td>
-      <td>26.5</td>
-      <td>0.02%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ADRREDDY" target="_blank" style="text-decoration:none;font-weight:bold;">DRREDDY</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>1289.0/1286.0 (Δ: 3.0)</td>
-      <td>1284.00</td>
-      <td>38076</td>
-      <td>32.14</td>
-      <td>41.07</td>
-      <td>13.4</td>
-      <td>-0.16%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ABAJAJ-AUTO" target="_blank" style="text-decoration:none;font-weight:bold;">BAJAJ-AUTO</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>8445.0/8437.5 (Δ: 7.5)</td>
-      <td>8428.00</td>
-      <td>2625</td>
-      <td>23.44</td>
-      <td>31.12</td>
-      <td>6.1</td>
-      <td>-0.11%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASENSEX" target="_blank" style="text-decoration:none;font-weight:bold;">SENSEX</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>83467.1/83433.1 (Δ: 34.0)</td>
-      <td>83545.76</td>
-      <td>0</td>
-      <td>29.89</td>
-      <td>45.41</td>
-      <td>6.7</td>
-      <td>0.09%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AGRANULES" target="_blank" style="text-decoration:none;font-weight:bold;">GRANULES</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>491.8/490.3 (Δ: 1.5)</td>
-      <td>490.00</td>
-      <td>6577</td>
-      <td>7.80</td>
-      <td>10.55</td>
-      <td>13.8</td>
-      <td>-0.06%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APOLICYBZR" target="_blank" style="text-decoration:none;font-weight:bold;">POLICYBZR</a></td>
-      <td>08-Jul 12:30 PM</td>
-      <td>1829.4/1826.5 (Δ: 2.9)</td>
-      <td>1834.20</td>
-      <td>13718</td>
-      <td>2.38</td>
-      <td>6.41</td>
-      <td>5.3</td>
-      <td>0.26%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ALICHSGFIN" target="_blank" style="text-decoration:none;font-weight:bold;">LICHSGFIN</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>608.7/608.0 (Δ: 0.7)</td>
-      <td>609.45</td>
-      <td>12724</td>
-      <td>21.35</td>
-      <td>29.78</td>
-      <td>7.9</td>
-      <td>0.12%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APEL" target="_blank" style="text-decoration:none;font-weight:bold;">PEL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1159.6/1157.8 (Δ: 1.8)</td>
-      <td>1163.00</td>
-      <td>3252</td>
-      <td>19.86</td>
-      <td>31.51</td>
-      <td>6.2</td>
-      <td>0.29%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AJINDALSTEL" target="_blank" style="text-decoration:none;font-weight:bold;">JINDALSTEL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>955.6/949.7 (Δ: 5.9)</td>
-      <td>957.35</td>
-      <td>45389</td>
-      <td>28.91</td>
-      <td>20.85</td>
-      <td>28.2</td>
-      <td>0.18%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APOWERGRID" target="_blank" style="text-decoration:none;font-weight:bold;">POWERGRID</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>295.8/295.6 (Δ: 0.2)</td>
-      <td>296.85</td>
-      <td>73761</td>
-      <td>15.91</td>
-      <td>40.91</td>
-      <td>2.3</td>
-      <td>0.37%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ABSOFT" target="_blank" style="text-decoration:none;font-weight:bold;">BSOFT</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>435.0/433.9 (Δ: 1.1)</td>
-      <td>435.25</td>
-      <td>14774</td>
-      <td>37.04</td>
-      <td>40.12</td>
-      <td>13.6</td>
-      <td>0.06%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AEXIDEIND" target="_blank" style="text-decoration:none;font-weight:bold;">EXIDEIND</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>387.6/386.6 (Δ: 1.0)</td>
-      <td>387.90</td>
-      <td>28992</td>
-      <td>32.03</td>
-      <td>26.56</td>
-      <td>15.6</td>
-      <td>0.09%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AKAYNES" target="_blank" style="text-decoration:none;font-weight:bold;">KAYNES</a></td>
-      <td>08-Jul 09:35 AM</td>
-      <td>6168.0/6155.0 (Δ: 13.0)</td>
-      <td>6144.00</td>
-      <td>4597</td>
-      <td>1.93</td>
-      <td>8.00</td>
-      <td>7.2</td>
-      <td>-0.18%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASONACOMS" target="_blank" style="text-decoration:none;font-weight:bold;">SONACOMS</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>470.4/469.2 (Δ: 1.2)</td>
-      <td>471.55</td>
-      <td>25786</td>
-      <td>39.19</td>
-      <td>50.00</td>
-      <td>10.4</td>
-      <td>0.26%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AKEI" target="_blank" style="text-decoration:none;font-weight:bold;">KEI</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>3830.0/3815.1 (Δ: 14.9)</td>
-      <td>3835.40</td>
-      <td>3472</td>
-      <td>26.97</td>
-      <td>21.05</td>
-      <td>16.3</td>
-      <td>0.14%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATCS" target="_blank" style="text-decoration:none;font-weight:bold;">TCS</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>3416.2/3410.2 (Δ: 6.0)</td>
-      <td>3419.00</td>
-      <td>39455</td>
-      <td>22.43</td>
-      <td>28.30</td>
-      <td>12.6</td>
-      <td>0.08%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATATACHEM" target="_blank" style="text-decoration:none;font-weight:bold;">TATACHEM</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>932.2/930.9 (Δ: 1.3)</td>
-      <td>934.00</td>
-      <td>6175</td>
-      <td>21.30</td>
-      <td>10.19</td>
-      <td>8.3</td>
-      <td>0.19%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMARUTI" target="_blank" style="text-decoration:none;font-weight:bold;">MARUTI</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>12527.0/12515.0 (Δ: 12.0)</td>
-      <td>12495.00</td>
-      <td>3991</td>
-      <td>27.56</td>
-      <td>37.96</td>
-      <td>6.2</td>
-      <td>-0.16%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AHCLTECH" target="_blank" style="text-decoration:none;font-weight:bold;">HCLTECH</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>1706.9/1703.0 (Δ: 3.9)</td>
-      <td>1707.90</td>
-      <td>28680</td>
-      <td>36.24</td>
-      <td>39.72</td>
-      <td>13.6</td>
-      <td>0.06%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AETERNAL" target="_blank" style="text-decoration:none;font-weight:bold;">ETERNAL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>262.1/261.6 (Δ: 0.5)</td>
-      <td>262.90</td>
-      <td>806852</td>
-      <td>41.30</td>
-      <td>22.83</td>
-      <td>10.9</td>
-      <td>0.32%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATATAELXSI" target="_blank" style="text-decoration:none;font-weight:bold;">TATAELXSI</a></td>
-      <td>08-Jul 09:30 AM</td>
-      <td>6189.0/6164.0 (Δ: 25.0)</td>
-      <td>6155.00</td>
-      <td>3181</td>
-      <td>36.12</td>
-      <td>30.05</td>
-      <td>16.9</td>
-      <td>-0.15%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AASHOKLEY" target="_blank" style="text-decoration:none;font-weight:bold;">ASHOKLEY</a></td>
-      <td>09-Jul 09:20 AM</td>
-      <td>251.4/250.8 (Δ: 0.6)</td>
-      <td>251.90</td>
-      <td>88137</td>
-      <td>7.89</td>
-      <td>5.26</td>
-      <td>15.8</td>
-      <td>0.20%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACROMPTON" target="_blank" style="text-decoration:none;font-weight:bold;">CROMPTON</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>350.0/349.6 (Δ: 0.4)</td>
-      <td>349.00</td>
-      <td>21919</td>
-      <td>30.82</td>
-      <td>23.29</td>
-      <td>6.2</td>
-      <td>-0.16%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASUNPHARMA" target="_blank" style="text-decoration:none;font-weight:bold;">SUNPHARMA</a></td>
-      <td>08-Jul 09:40 AM</td>
-      <td>1671.1/1667.1 (Δ: 4.0)</td>
-      <td>1665.90</td>
-      <td>52750</td>
-      <td>5.49</td>
-      <td>0.42</td>
-      <td>16.9</td>
-      <td>-0.07%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASAIL" target="_blank" style="text-decoration:none;font-weight:bold;">SAIL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>134.4/134.4 (Δ: 0.0)</td>
-      <td>134.82</td>
-      <td>244625</td>
-      <td>44.85</td>
-      <td>33.64</td>
-      <td>0.3</td>
-      <td>0.28%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AIRB" target="_blank" style="text-decoration:none;font-weight:bold;">IRB</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>49.4/49.2 (Δ: 0.2)</td>
-      <td>49.44</td>
-      <td>310756</td>
-      <td>25.56</td>
-      <td>35.56</td>
-      <td>12.2</td>
-      <td>0.18%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APNB" target="_blank" style="text-decoration:none;font-weight:bold;">PNB</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>112.5/112.2 (Δ: 0.3)</td>
-      <td>112.68</td>
-      <td>426718</td>
-      <td>16.25</td>
-      <td>24.17</td>
-      <td>13.7</td>
-      <td>0.17%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ABDL" target="_blank" style="text-decoration:none;font-weight:bold;">BDL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1955.9/1951.4 (Δ: 4.5)</td>
-      <td>1960.00</td>
-      <td>54126</td>
-      <td>37.04</td>
-      <td>44.53</td>
-      <td>8.2</td>
-      <td>0.21%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APRESTIGE" target="_blank" style="text-decoration:none;font-weight:bold;">PRESTIGE</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1636.2/1628.9 (Δ: 7.3)</td>
-      <td>1628.30</td>
-      <td>5413</td>
-      <td>21.73</td>
-      <td>20.25</td>
-      <td>18.0</td>
-      <td>-0.04%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AM&MFIN" target="_blank" style="text-decoration:none;font-weight:bold;">M&MFIN</a></td>
-      <td>08-Jul 10:00 AM</td>
-      <td>267.7/267.0 (Δ: 0.7)</td>
-      <td>266.90</td>
-      <td>29506</td>
-      <td>4.24</td>
-      <td>2.54</td>
-      <td>11.9</td>
-      <td>-0.04%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASIEMENS" target="_blank" style="text-decoration:none;font-weight:bold;">SIEMENS</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>3326.0/3314.8 (Δ: 11.2)</td>
-      <td>3334.70</td>
-      <td>36053</td>
-      <td>14.61</td>
-      <td>3.65</td>
-      <td>14.1</td>
-      <td>0.26%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ABHARTIARTL" target="_blank" style="text-decoration:none;font-weight:bold;">BHARTIARTL</a></td>
-      <td>08-Jul 10:25 AM</td>
-      <td>2023.3/2022.0 (Δ: 1.3)</td>
-      <td>2021.10</td>
-      <td>29270</td>
-      <td>4.87</td>
-      <td>7.45</td>
-      <td>3.7</td>
-      <td>-0.04%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATORNTPOWER" target="_blank" style="text-decoration:none;font-weight:bold;">TORNTPOWER</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1444.0/1443.3 (Δ: 0.7)</td>
-      <td>1450.00</td>
-      <td>3698</td>
-      <td>22.11</td>
-      <td>41.91</td>
-      <td>2.3</td>
-      <td>0.42%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APHOENIXLTD" target="_blank" style="text-decoration:none;font-weight:bold;">PHOENIXLTD</a></td>
-      <td>08-Jul 09:30 AM</td>
-      <td>1563.0/1559.4 (Δ: 3.6)</td>
-      <td>1565.70</td>
-      <td>14232</td>
-      <td>47.90</td>
-      <td>41.23</td>
-      <td>8.9</td>
-      <td>0.17%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ALTF" target="_blank" style="text-decoration:none;font-weight:bold;">LTF</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>209.0/208.3 (Δ: 0.7)</td>
-      <td>209.14</td>
-      <td>143654</td>
-      <td>26.00</td>
-      <td>23.20</td>
-      <td>14.2</td>
-      <td>0.07%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AITC" target="_blank" style="text-decoration:none;font-weight:bold;">ITC</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>416.6/415.9 (Δ: 0.7)</td>
-      <td>416.80</td>
-      <td>90014</td>
-      <td>41.46</td>
-      <td>36.59</td>
-      <td>15.9</td>
-      <td>0.05%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AAPLAPOLLO" target="_blank" style="text-decoration:none;font-weight:bold;">APLAPOLLO</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1741.1/1737.2 (Δ: 3.9)</td>
-      <td>1741.70</td>
-      <td>4252</td>
-      <td>42.08</td>
-      <td>43.50</td>
-      <td>9.2</td>
-      <td>0.03%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACGPOWER" target="_blank" style="text-decoration:none;font-weight:bold;">CGPOWER</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>679.1/675.1 (Δ: 4.0)</td>
-      <td>679.35</td>
-      <td>168640</td>
-      <td>26.24</td>
-      <td>28.01</td>
-      <td>28.4</td>
-      <td>0.04%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMAZDOCK" target="_blank" style="text-decoration:none;font-weight:bold;">MAZDOCK</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>3297.0/3290.0 (Δ: 7.0)</td>
-      <td>3300.00</td>
-      <td>52824</td>
-      <td>37.43</td>
-      <td>32.93</td>
-      <td>10.5</td>
-      <td>0.09%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AUNIONBANK" target="_blank" style="text-decoration:none;font-weight:bold;">UNIONBANK</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>153.3/152.9 (Δ: 0.4)</td>
-      <td>153.43</td>
-      <td>143695</td>
-      <td>31.84</td>
-      <td>35.26</td>
-      <td>11.6</td>
-      <td>0.08%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ALTIM" target="_blank" style="text-decoration:none;font-weight:bold;">LTIM</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>5363.5/5338.0 (Δ: 25.5)</td>
-      <td>5335.50</td>
-      <td>2021</td>
-      <td>38.60</td>
-      <td>41.67</td>
-      <td>31.2</td>
-      <td>-0.05%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ABANKEX" target="_blank" style="text-decoration:none;font-weight:bold;">BANKEX</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>63915.4/63905.5 (Δ: 9.9)</td>
-      <td>64015.43</td>
-      <td>0</td>
-      <td>25.27</td>
-      <td>46.51</td>
-      <td>2.1</td>
-      <td>0.16%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AICICIPRULI" target="_blank" style="text-decoration:none;font-weight:bold;">ICICIPRULI</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>663.0/659.0 (Δ: 4.0)</td>
-      <td>659.00</td>
-      <td>34219</td>
-      <td>10.87</td>
-      <td>10.56</td>
-      <td>24.2</td>
-      <td>-0.01%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMPHASIS" target="_blank" style="text-decoration:none;font-weight:bold;">MPHASIS</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>2884.5/2869.4 (Δ: 15.1)</td>
-      <td>2865.10</td>
-      <td>13061</td>
-      <td>29.18</td>
-      <td>21.53</td>
-      <td>26.9</td>
-      <td>-0.15%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AINDIANB" target="_blank" style="text-decoration:none;font-weight:bold;">INDIANB</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>645.6/644.2 (Δ: 1.4)</td>
-      <td>646.95</td>
-      <td>12563</td>
-      <td>22.69</td>
-      <td>33.61</td>
-      <td>11.8</td>
-      <td>0.20%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AALKEM" target="_blank" style="text-decoration:none;font-weight:bold;">ALKEM</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>4878.5/4864.7 (Δ: 13.8)</td>
-      <td>4862.00</td>
-      <td>1770</td>
-      <td>14.79</td>
-      <td>17.86</td>
-      <td>15.7</td>
-      <td>-0.06%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APPLPHARMA" target="_blank" style="text-decoration:none;font-weight:bold;">PPLPHARMA</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>202.7/202.6 (Δ: 0.1)</td>
-      <td>202.99</td>
-      <td>63256</td>
-      <td>37.02</td>
-      <td>42.77</td>
-      <td>1.7</td>
-      <td>0.13%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APIIND" target="_blank" style="text-decoration:none;font-weight:bold;">PIIND</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>4165.4/4165.1 (Δ: 0.3)</td>
-      <td>4176.00</td>
-      <td>783</td>
-      <td>26.53</td>
-      <td>13.57</td>
-      <td>0.4</td>
-      <td>0.25%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APOLYCAB" target="_blank" style="text-decoration:none;font-weight:bold;">POLYCAB</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>6715.0/6705.0 (Δ: 10.0)</td>
-      <td>6721.50</td>
-      <td>3423</td>
-      <td>40.81</td>
-      <td>36.20</td>
-      <td>7.1</td>
-      <td>0.10%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AASTRAL" target="_blank" style="text-decoration:none;font-weight:bold;">ASTRAL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>1486.1/1484.6 (Δ: 1.5)</td>
-      <td>1488.70</td>
-      <td>10161</td>
-      <td>22.01</td>
-      <td>32.05</td>
-      <td>5.8</td>
-      <td>0.17%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACYIENT" target="_blank" style="text-decoration:none;font-weight:bold;">CYIENT</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>1302.5/1300.3 (Δ: 2.2)</td>
-      <td>1303.70</td>
-      <td>4976</td>
-      <td>39.91</td>
-      <td>34.65</td>
-      <td>9.6</td>
-      <td>0.09%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APAYTM" target="_blank" style="text-decoration:none;font-weight:bold;">PAYTM</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>925.8/923.1 (Δ: 2.7)</td>
-      <td>926.20</td>
-      <td>20130</td>
-      <td>18.16</td>
-      <td>20.18</td>
-      <td>11.7</td>
-      <td>0.05%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AATGL" target="_blank" style="text-decoration:none;font-weight:bold;">ATGL</a></td>
-      <td>08-Jul 09:20 AM</td>
-      <td>662.0/661.6 (Δ: 0.4)</td>
-      <td>664.40</td>
-      <td>40357</td>
-      <td>17.97</td>
-      <td>36.72</td>
-      <td>3.1</td>
-      <td>0.36%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AHINDALCO" target="_blank" style="text-decoration:none;font-weight:bold;">HINDALCO</a></td>
-      <td>08-Jul 09:45 AM</td>
-      <td>695.5/694.0 (Δ: 1.5)</td>
-      <td>695.95</td>
-      <td>28758</td>
-      <td>11.54</td>
-      <td>8.39</td>
-      <td>10.5</td>
-      <td>0.06%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATATATECH" target="_blank" style="text-decoration:none;font-weight:bold;">TATATECH</a></td>
-      <td>08-Jul 09:30 AM</td>
-      <td>706.9/705.3 (Δ: 1.6)</td>
-      <td>707.40</td>
-      <td>14454</td>
-      <td>31.77</td>
-      <td>36.98</td>
-      <td>16.7</td>
-      <td>0.07%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AM&M" target="_blank" style="text-decoration:none;font-weight:bold;">M&M</a></td>
-      <td>09-Jul 09:15 AM</td>
-      <td>3168.0/3141.0 (Δ: 27.0)</td>
-      <td>3168.20</td>
-      <td>85117</td>
-      <td>15.22</td>
-      <td>15.61</td>
-      <td>52.0</td>
-      <td>0.01%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AAXISBANK" target="_blank" style="text-decoration:none;font-weight:bold;">AXISBANK</a></td>
-      <td>08-Jul 10:05 AM</td>
-      <td>1172.9/1171.5 (Δ: 1.4)</td>
-      <td>1170.70</td>
-      <td>54715</td>
-      <td>16.15</td>
-      <td>11.18</td>
-      <td>8.7</td>
-      <td>-0.07%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ATATACONSUM" target="_blank" style="text-decoration:none;font-weight:bold;">TATACONSUM</a></td>
-      <td>08-Jul 10:00 AM</td>
-      <td>1102.9/1101.5 (Δ: 1.4)</td>
-      <td>1100.90</td>
-      <td>6685</td>
-      <td>28.65</td>
-      <td>31.89</td>
-      <td>7.6</td>
-      <td>-0.05%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3APAGEIND" target="_blank" style="text-decoration:none;font-weight:bold;">PAGEIND</a></td>
-      <td>08-Jul 10:30 AM</td>
-      <td>48710.0/48660.0 (Δ: 50.0)</td>
-      <td>48610.00</td>
-      <td>184</td>
-      <td>43.26</td>
-      <td>48.47</td>
-      <td>5.2</td>
-      <td>-0.10%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ASHREECEM" target="_blank" style="text-decoration:none;font-weight:bold;">SHREECEM</a></td>
-      <td>08-Jul 09:25 AM</td>
-      <td>31140.0/31095.0 (Δ: 45.0)</td>
-      <td>31075.00</td>
-      <td>154</td>
-      <td>20.45</td>
-      <td>16.73</td>
-      <td>8.4</td>
-      <td>-0.06%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMAXHEALTH" target="_blank" style="text-decoration:none;font-weight:bold;">MAXHEALTH</a></td>
-      <td>08-Jul 11:20 AM</td>
-      <td>1300.0/1296.0 (Δ: 4.0)</td>
-      <td>1292.40</td>
-      <td>28363</td>
-      <td>38.60</td>
-      <td>49.54</td>
-      <td>12.2</td>
-      <td>-0.28%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ANMDC" target="_blank" style="text-decoration:none;font-weight:bold;">NMDC</a></td>
-      <td>08-Jul 10:10 AM</td>
-      <td>68.5/68.4 (Δ: 0.1)</td>
-      <td>68.35</td>
-      <td>119440</td>
-      <td>28.57</td>
-      <td>29.29</td>
-      <td>10.0</td>
-      <td>-0.01%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ACONCOR" target="_blank" style="text-decoration:none;font-weight:bold;">CONCOR</a></td>
-      <td>08-Jul 11:00 AM</td>
-      <td>593.0/592.0 (Δ: 1.0)</td>
-      <td>591.75</td>
-      <td>9500</td>
-      <td>35.14</td>
-      <td>33.33</td>
-      <td>6.9</td>
-      <td>-0.04%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3ALODHA" target="_blank" style="text-decoration:none;font-weight:bold;">LODHA</a></td>
-      <td>09-Jul 09:55 AM</td>
-      <td>1378.9/1376.0 (Δ: 2.9)</td>
-      <td>1375.70</td>
-      <td>7891</td>
-      <td>49.53</td>
-      <td>48.59</td>
-      <td>9.1</td>
-      <td>-0.02%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AGODREJPROP" target="_blank" style="text-decoration:none;font-weight:bold;">GODREJPROP</a></td>
-      <td>08-Jul 12:35 PM</td>
-      <td>2295.9/2291.6 (Δ: 4.3)</td>
-      <td>2299.00</td>
-      <td>15879</td>
-      <td>29.69</td>
-      <td>35.63</td>
-      <td>8.2</td>
-      <td>0.14%</td>
-      <td><span style="color:green;font-weight:600;">↑ Up</span></td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AJIOFIN" target="_blank" style="text-decoration:none;font-weight:bold;">JIOFIN</a></td>
-      <td>08-Jul 12:30 PM</td>
-      <td>327.5/327.0 (Δ: 0.5)</td>
-      <td>326.95</td>
-      <td>143845</td>
-      <td>49.07</td>
-      <td>48.15</td>
-      <td>9.3</td>
-      <td>-0.02%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AEICHERMOT" target="_blank" style="text-decoration:none;font-weight:bold;">EICHERMOT</a></td>
-      <td>08-Jul 10:40 AM</td>
-      <td>5682.5/5685.0 (Δ: 2.5)</td>
-      <td>5679.50</td>
-      <td>1149</td>
-      <td>47.00</td>
-      <td>39.82</td>
-      <td>3.3</td>
-      <td>-0.10%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td><a href="https://in.tradingview.com/chart/?symbol=NSE%3AMUTHOOTFIN" target="_blank" style="text-decoration:none;font-weight:bold;">MUTHOOTFIN</a></td>
-      <td>08-Jul 10:05 AM</td>
-      <td>2655.0/2654.8 (Δ: 0.2)</td>
-      <td>2648.60</td>
-      <td>4902</td>
-      <td>13.51</td>
-      <td>26.01</td>
-      <td>0.4</td>
-      <td>-0.23%</td>
-      <td><span style="color:red;font-weight:600;">↓ Down</span></td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-           </div> 
+      </div>
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Top Score</div>
+          <h4 id="score" class="text-primary">0</h4>
         </div>
+      </div>
+      <div class="col-6 col-sm-4 mb-2">
+        <div class="card shadow-sm">
+          <div class="stat-label">Top Gap %</div>
+          <h4 id="gap" class="text-primary">0%</h4>
+        </div>
+      </div>
+    </div>
 
-        <script>
-            $(document).ready(function () {
-                $('table').DataTable({
-                    "pageLength": 50
-                });
-                document.getElementById("toggle-theme").addEventListener("click", function () {
-                    document.body.classList.toggle("dark-mode");
-                });
-            });
-        </script>
-    </body>
-    </html>
-    
+    <table id="breakoutTable" class="table table-striped table-bordered table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Time</th>
+          <th>Type</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>LTP</th>
+          <th>Volume</th>
+          <th>Score</th>
+          <th>Gap %</th>
+          <th>DATR %</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+  }
+
+  function formatISTDateTime(isoStr) {
+    const dt = new Date(isoStr);
+    const options = {
+      year: 'numeric', month: 'short', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: true, timeZone: 'Asia/Kolkata'
+    };
+    return dt.toLocaleString('en-IN', options) + ' IST';
+  }
+
+  function loadBreakoutData() {
+    fetch("breakout_stocks.json")
+      .then(response => response.json())
+      .then(data => {
+        const tbody = document.querySelector("#breakoutTable tbody");
+        tbody.innerHTML = "";
+        if (data.length === 0) return;
+
+        let total = data.length;
+        let maxScore = 0;
+        let maxGap = 0;
+
+        // Get generated_at timestamp
+        const lastUpdated = data[0].generated_at;
+        if (lastUpdated) {
+          document.getElementById("lastUpdatedTime").textContent = formatISTDateTime(lastUpdated);
+        }
+
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="symbol"><a href="#">${row.symbol}</a></td>
+            <td>${row.breakout_time}</td>
+            <td>${row.type.toUpperCase()}</td>
+            <td>${row.high_9_15}</td>
+            <td>${row.low_9_15}</td>
+            <td>${row.ltp_at_breakout}</td>
+            <td>${row.volume}</td>
+            <td>${row.score}</td>
+            <td>${parseFloat(row.gap_pct).toFixed(2)}%</td>
+            <td>${row.datr}</td>
+          `;
+          tbody.appendChild(tr);
+
+          if (row.score > maxScore) maxScore = row.score;
+          if (row.gap_pct > maxGap) maxGap = row.gap_pct;
+        });
+
+        document.getElementById("total").textContent = total;
+        document.getElementById("score").textContent = maxScore;
+        document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
+
+        if ($.fn.DataTable.isDataTable('#breakoutTable')) {
+          $('#breakoutTable').DataTable().destroy();
+        }
+
+        $('#breakoutTable').DataTable({
+          pageLength: 10,
+          lengthMenu: [10, 25, 50, 100],
+        });
+      });
+  }
+
+  loadBreakoutData();
+  setInterval(loadBreakoutData, 10000);
+</script>
+<script>
+  // Set theme on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark" || savedTheme === null) {
+      document.body.classList.add("dark-mode");
+    }
+  });
+
+  // Theme toggle function
+  function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }
+</script>
+
+</body>
+</html>
