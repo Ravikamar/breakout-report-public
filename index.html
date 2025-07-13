@@ -10,20 +10,10 @@
   <!-- DataTables -->
   <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
 
-  <!-- Custom Styles -->
   <style>
     body.dark-mode {
       background-color: #121212;
       color: #e0e0e0;
-    }
-
-    body.dark-mode .card {
-      background-color: #1e1e1e;
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .card .stat-label {
-      color: #cccccc !important;
     }
 
     .card {
@@ -43,43 +33,14 @@
       margin: 0;
     }
 
-    body.dark-mode table.dataTable {
-      background-color: #1a1a1a !important;
+    body.dark-mode .card,
+    body.dark-mode .dataTables_wrapper,
+    body.dark-mode table.dataTable,
+    body.dark-mode table.dataTable thead th,
+    body.dark-mode table.dataTable tbody td {
+      background-color: #1e1e1e !important;
       color: #e0e0e0 !important;
       border-color: #444 !important;
-    }
-
-    body.dark-mode table.dataTable thead th {
-      background-color: #2c2c2c !important;
-      color: #fff !important;
-      border-bottom: 1px solid #444 !important;
-    }
-
-    body.dark-mode table.dataTable tbody td {
-      background-color: #1a1a1a !important;
-      color: #e0e0e0 !important;
-    }
-
-    body.dark-mode table.dataTable tbody tr:nth-child(even) td {
-      background-color: #2a2a2a !important;
-    }
-
-    body.dark-mode .dataTables_wrapper .dataTables_filter input,
-    body.dark-mode .dataTables_wrapper .dataTables_length select {
-      background-color: #2a2a2a !important;
-      color: #fff !important;
-      border: 1px solid #555 !important;
-    }
-
-    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button {
-      background-color: #1e1e1e !important;
-      color: #fff !important;
-      border: 1px solid #555 !important;
-    }
-
-    body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-      background-color: #007bff !important;
-      color: #fff !important;
     }
 
     .symbol a {
@@ -101,11 +62,23 @@
     #lastUpdated {
       font-size: 14px;
       color: #888;
-      margin-bottom: 10px;
     }
 
     body.dark-mode #lastUpdated {
       color: #ccc;
+    }
+
+    #marketStatus {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    body.dark-mode .paginate_button,
+    body.dark-mode select,
+    body.dark-mode input {
+      background-color: #2a2a2a !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
     }
   </style>
 </head>
@@ -113,13 +86,21 @@
 <body>
 <div class="container">
   <div class="container-fluid my-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
       <h2><img src="brand.png" alt="Logo" width="40" class="me-2">Pulse - Live Breakout Tracker</h2>
       <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">Toggle Theme</button>
     </div>
 
-    <p>Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
-    <div id="lastUpdated">Last updated: <span id="lastUpdatedTime">Loading...</span></div>
+    <div class="d-flex justify-content-between flex-wrap mb-3">
+      <div>
+        <p class="mb-1">Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
+        <div id="lastUpdated">Last updated: <span id="lastUpdatedTime">Loading...</span></div>
+      </div>
+      <div class="text-end">
+        <div id="marketStatus" class="text-danger">Market Closed</div>
+        <div id="refreshTimer" class="text-info">Next refresh in: --:--:--</div>
+      </div>
+    </div>
 
     <div class="row text-center mb-3">
       <div class="col-6 col-sm-4 mb-2">
@@ -171,87 +152,132 @@
 <script>
   function toggleTheme() {
     document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
   }
 
   function formatISTDateTime(str) {
-  // Just return the original string with " IST" suffix
-  return str + " IST";
+    return str + " IST";
+  }
+
+  let lastGeneratedAt = null;
+
+  function loadBreakoutData() {
+  fetch("breakout_stocks.json")
+    .then(response => response.json())
+    .then(data => {
+      if (!data.length) return;
+
+      const currentGeneratedAt = data[0].generated_at;
+      if (lastGeneratedAt === currentGeneratedAt) {
+        console.log("⏳ No data change detected, skipping reload.");
+        return; // Skip updating the table
+      }
+
+      lastGeneratedAt = currentGeneratedAt;
+
+      const tbody = document.querySelector("#breakoutTable tbody");
+      tbody.innerHTML = "";
+
+      let total = data.length;
+      let maxScore = 0;
+      let maxGap = 0;
+
+      document.getElementById("lastUpdatedTime").textContent = formatISTDateTime(currentGeneratedAt);
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="symbol"><a href="#">${row.symbol}</a></td>
+          <td>${row.breakout_time}</td>
+          <td>${row.type.toUpperCase()}</td>
+          <td>${row.high_9_15}</td>
+          <td>${row.low_9_15}</td>
+          <td>${row.ltp_at_breakout}</td>
+          <td>${row.volume}</td>
+          <td>${row.score}</td>
+          <td>${parseFloat(row.gap_pct).toFixed(2)}%</td>
+          <td>${row.datr}</td>
+        `;
+        tbody.appendChild(tr);
+
+        if (row.score > maxScore) maxScore = row.score;
+        if (row.gap_pct > maxGap) maxGap = row.gap_pct;
+      });
+
+      document.getElementById("total").textContent = total;
+      document.getElementById("score").textContent = maxScore;
+      document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
+
+      if ($.fn.DataTable.isDataTable('#breakoutTable')) {
+        $('#breakoutTable').DataTable().destroy();
+      }
+
+      $('#breakoutTable').DataTable({
+        paging: false,
+        searching: true,
+        info: false,
+        order: [[1, 'desc']],
+        scrollX: true
+      });
+    });
 }
 
 
+  function isMarketClosed() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const day = now.getDay(); // Sunday = 0, Saturday = 6
 
+    if (day === 0 || day === 6) return true;
+    const currentTime = hours * 60 + minutes;
+    const openTime = 9 * 60 + 15;
+    const closeTime = 15 * 60 + 30;
 
-  function loadBreakoutData() {
-    fetch("breakout_stocks.json")
-      .then(response => response.json())
-      .then(data => {
-        const tbody = document.querySelector("#breakoutTable tbody");
-        tbody.innerHTML = "";
-        if (data.length === 0) return;
-
-        let total = data.length;
-        let maxScore = 0;
-        let maxGap = 0;
-
-        // Get generated_at timestamp
-        const lastUpdated = data[0].generated_at;
-        if (lastUpdated) {
-          document.getElementById("lastUpdatedTime").textContent = formatISTDateTime(lastUpdated);
-        }
-
-        data.forEach(row => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td class="symbol"><a href="#">${row.symbol}</a></td>
-            <td>${row.breakout_time}</td>
-            <td>${row.type.toUpperCase()}</td>
-            <td>${row.high_9_15}</td>
-            <td>${row.low_9_15}</td>
-            <td>${row.ltp_at_breakout}</td>
-            <td>${row.volume}</td>
-            <td>${row.score}</td>
-            <td>${parseFloat(row.gap_pct).toFixed(2)}%</td>
-            <td>${row.datr}</td>
-          `;
-          tbody.appendChild(tr);
-
-          if (row.score > maxScore) maxScore = row.score;
-          if (row.gap_pct > maxGap) maxGap = row.gap_pct;
-        });
-
-        document.getElementById("total").textContent = total;
-        document.getElementById("score").textContent = maxScore;
-        document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
-
-        if ($.fn.DataTable.isDataTable('#breakoutTable')) {
-          $('#breakoutTable').DataTable().destroy();
-        }
-
-        $('#breakoutTable').DataTable({
-          pageLength: 10,
-          lengthMenu: [10, 25, 50, 100],
-        });
-      });
+    return currentTime < openTime || currentTime > closeTime;
   }
 
-  loadBreakoutData();
-  setInterval(loadBreakoutData, 10000);
-</script>
-<script>
-  // Set theme on page load
+  function updateMarketStatus() {
+    const status = isMarketClosed() ? "Market Closed" : "Market Open";
+    document.getElementById("marketStatus").textContent = status;
+  }
+
+  function startRefreshCountdown(intervalSeconds) {
+    const refreshEl = document.getElementById("refreshTimer");
+    let remaining = intervalSeconds;
+
+    function update() {
+      const min = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const sec = String(remaining % 60).padStart(2, '0');
+      refreshEl.textContent = `Next refresh in: ${min}:${sec}`;
+      if (remaining > 0) {
+        remaining--;
+        setTimeout(update, 1000);
+      }
+    }
+
+    update();
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark" || savedTheme === null) {
       document.body.classList.add("dark-mode");
     }
-  });
 
-  // Theme toggle function
-  function toggleTheme() {
-    document.body.classList.toggle("dark-mode");
-    const isDark = document.body.classList.contains("dark-mode");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  }
+    loadBreakoutData();
+    updateMarketStatus();
+    startRefreshCountdown(10); // Refresh countdown every 10s
+    setInterval(() => {
+      if (!isMarketClosed()) {
+        loadBreakoutData();
+        startRefreshCountdown(10);
+      } else {
+        document.getElementById("refreshTimer").textContent = "Next refresh in: --:--";
+      }
+      updateMarketStatus();
+    }, 10000);
+  });
 </script>
 
 </body>
