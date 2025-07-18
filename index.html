@@ -1,284 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pulse - Live Breakout Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pulse - Professional Breakout Tracker</title>
 
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- DataTables -->
-  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    body.dark-mode {
-      background-color: #121212;
-      color: #e0e0e0;
-    }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
-    .card {
-      padding: 12px 10px;
-      margin-bottom: 10px;
-      text-align: center;
-    }
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container-fluid { max-width: 1400px; }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1.5rem;
+        }
+        .header-title { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 600; }
+        .status-indicators { display: flex; align-items: center; gap: 1.5rem; font-size: 0.9rem; }
+        .status-badge { font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 0.25rem; }
+        .status-open { color: #198754; }
+        .status-closed { color: #dc3545; }
+        .summary-card { text-align: center; padding: 1rem; border: 1px solid #dee2e6; border-radius: 0.5rem; }
+        .summary-card h3 { font-size: 2rem; font-weight: 700; margin: 0; }
+        .summary-card p { font-size: 0.9rem; color: #6c757d; margin: 0; }
+        .nav-tabs .nav-link { font-weight: 500; }
+        .badge-up { background-color: #198754 !important; }
+        .badge-down { background-color: #dc3545 !important; }
+        .score-stars { color: #ffc107; font-size: 1.1rem; }
+        tr.up-breakout:hover { background-color: rgba(25, 135, 84, 0.1) !important; }
+        tr.down-breakout:hover { background-color: rgba(220, 53, 69, 0.1) !important; }
 
-    .stat-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #6c757d;
-    }
+        /* --- Dark Mode --- */
+        body.dark-mode {
+            background-color: #121212; /* Very dark background */
+            color: #e0e0e0; /* Lighter text for general content */
+        }
 
-    .card h4 {
-      font-size: 26px;
-      margin: 0;
-    }
+        body.dark-mode .header-bar,
+        body.dark-mode .summary-card,
+        body.dark-mode .nav-tabs .nav-link,
+        body.dark-mode .card {
+            border-color: #333333 !important; /* Darker borders */
+        }
 
-    body.dark-mode .card,
-    body.dark-mode .dataTables_wrapper,
-    body.dark-mode table.dataTable,
-    body.dark-mode table.dataTable thead th,
-    body.dark-mode table.dataTable tbody td {
-      background-color: #1e1e1e !important;
-      color: #e0e0e0 !important;
-      border-color: #444 !important;
-    }
+        body.dark-mode .bg-light,
+        body.dark-mode .nav-tabs {
+            background-color: #1e1e1e !important; /* Darker background for light elements */
+        }
 
-    .symbol a {
-      font-weight: bold;
-      color: #007bff;
-      text-decoration: none;
-    }
+        body.dark-mode .summary-card,
+        body.dark-mode .nav-tabs .nav-link.active {
+            background-color: #2a2a2a !important; /* Even darker for active tabs/cards */
+            color: #e0e0e0 !important; /* Ensure active tab text is visible */
+        }
 
-    .symbol a:hover {
-      text-decoration: underline;
-    }
+        body.dark-mode .summary-card p {
+            color: #b0b0b0; /* Slightly lighter for card descriptions */
+        }
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 10px;
-    }
+        /* DataTables specific dark mode styling */
+        body.dark-mode .dataTables_wrapper .dataTables_filter input,
+        body.dark-mode .dataTables_wrapper .dataTables_length select {
+            background-color: #2a2a2a !important;
+            color: #e0e0e0 !important;
+            border: 1px solid #555555 !important;
+        }
 
-    #lastUpdated {
-      font-size: 14px;
-      color: #888;
-    }
+        body.dark-mode table.dataTable {
+            background-color: #1e1e1e; /* Main table background */
+            color: #e0e0e0; /* Default table text color */
+        }
 
-    body.dark-mode #lastUpdated {
-      color: #ccc;
-    }
+        /* IMPORTANT: Ensure table cell data is visible */
+        body.dark-mode table.dataTable tbody td {
+            color: #e0e0e0; /* Explicitly set text color for table data cells */
+        }
 
-    #marketStatus {
-      font-size: 14px;
-      font-weight: bold;
-    }
+        body.dark-mode table.dataTable thead th,
+        body.dark-mode table.dataTable tbody td {
+            border-color: #333333 !important; /* Table cell borders */
+        }
 
-    body.dark-mode .paginate_button,
-    body.dark-mode select,
-    body.dark-mode input {
-      background-color: #2a2a2a !important;
-      color: #fff !important;
-      border: 1px solid #555 !important;
-    }
-  </style>
+        body.dark-mode table.dataTable thead th {
+            background-color: #2a2a2a; /* Table header background */
+            color: #e0e0e0;
+        }
+
+        /* Crucial fix for striped rows in dark mode */
+        body.dark-mode table.dataTable.table-striped > tbody > tr:nth-of-type(odd) > * {
+            background-color: #252525 !important; /* Darker background for odd striped rows */
+        }
+        body.dark-mode table.dataTable.table-striped > tbody > tr:nth-of-type(even) > * {
+            background-color: #1e1e1e !important; /* Even darker background for even striped rows */
+        }
+
+
+        body.dark-mode table.dataTable.table-hover > tbody > tr:hover > * {
+            background-color: #383838 !important; /* Slightly lighter hover effect */
+        }
+
+        body.dark-mode .paginate_button {
+            background-color: #2a2a2a !important;
+            color: #e0e0e0 !important;
+            border: 1px solid #555555 !important;
+        }
+
+        body.dark-mode .paginate_button.current,
+        body.dark-mode .paginate_button.current:hover {
+            background-color: #4a4a4a !important; /* Darker background for current pagination button */
+            color: #ffffff !important;
+        }
+
+        /* Improved visibility for refresh and last updated */
+        body.dark-mode #lastUpdatedTime,
+        body.dark-mode #refreshTimer {
+            color: #00bcd4; /* A clear, light blue/cyan color */
+            font-weight: 500; /* Medium weight */
+            font-size: 0.95rem; /* Slightly larger */
+        }
+    </style>
 </head>
 
-<body>
-<div class="container">
-  <div class="container-fluid my-3">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <h2><img src="brand.png" alt="Logo" width="40" class="me-2">Pulse - Live Breakout Tracker</h2>
-      <button onclick="toggleTheme()" class="btn btn-secondary btn-sm">Toggle Theme</button>
+<body class="dark-mode">
+    <div class="container-fluid my-3">
+        <div class="header-bar">
+            <div class="header-title">
+                <img src="brand.png" alt="Logo" width="40">
+                <span>Pulse Breakout Tracker</span>
+            </div>
+            <div class="status-indicators">
+                <div id="marketStatus" class="status-badge status-closed">Market Closed</div>
+                <div id="refreshTimer">Next refresh: --:--</div>
+                <div id="lastUpdatedTime">Last updated: Loading...</div>
+                <button onclick="toggleTheme()" class="btn btn-sm btn-outline-secondary">🌗</button>
+            </div>
+        </div>
+
+        <div class="row mb-4 g-3">
+            <div class="col">
+                <div class="summary-card bg-light">
+                    <h3 id="niftyCount">--</h3>
+                    <p>Nifty 50 Breakouts</p>
+                </div>
+            </div>
+            <div class="col">
+                <div class="summary-card bg-light">
+                    <h3 id="othersCount">--</h3>
+                    <p>Other F&O Breakouts</p>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="breakoutTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="nifty-tab" data-bs-toggle="tab" data-bs-target="#nifty-content" type="button">Nifty 50</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="others-tab" data-bs-toggle="tab" data-bs-target="#others-content" type="button">Other F&O Stocks</button>
+            </li>
+        </ul>
+
+        <div class="tab-content pt-3">
+            <div class="tab-pane fade show active" id="nifty-content" role="tabpanel">
+                <table id="niftyTable" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr><th>Symbol</th><th>Type</th><th>Score</th><th>Breakout Price</th><th>Stop Loss</th><th>Target</th><th>R:R</th><th>Time</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="others-content" role="tabpanel">
+                <table id="othersTable" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr><th>Symbol</th><th>Type</th><th>Score</th><th>Breakout Price</th><th>Stop Loss</th><th>Target</th><th>R:R</th><th>Time</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex justify-content-between flex-wrap mb-3">
-      <div>
-        <p class="mb-1">Tracking potential stock breakouts every 5 minutes, live from the Indian stock market. All times shown in IST.</p>
-        <div id="lastUpdated">Last updated: <span id="lastUpdatedTime">Loading...</span></div>
-      </div>
-      <div class="text-end">
-        <div id="marketStatus" class="text-danger">Market Closed</div>
-        <div id="refreshTimer" class="text-info">Next refresh in: --:--:--</div>
-      </div>
-    </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
-    <div class="row text-center mb-3">
-      <div class="col-6 col-sm-4 mb-2">
-        <div class="card shadow-sm">
-          <div class="stat-label">Total Breakouts</div>
-          <h4 id="total" class="text-primary">0</h4>
-        </div>
-      </div>
-      <div class="col-6 col-sm-4 mb-2">
-        <div class="card shadow-sm">
-          <div class="stat-label">Top Score</div>
-          <h4 id="score" class="text-primary">0</h4>
-        </div>
-      </div>
-      <div class="col-6 col-sm-4 mb-2">
-        <div class="card shadow-sm">
-          <div class="stat-label">Top Gap %</div>
-          <h4 id="gap" class="text-primary">0%</h4>
-        </div>
-      </div>
-    </div>
-
-    <table id="breakoutTable" class="table table-striped table-bordered table-hover" style="width:100%">
-      <thead>
-        <tr>
-          <th>Symbol</th>
-          <th>Time</th>
-          <th>Type</th>
-          <th>High</th>
-          <th>Low</th>
-          <th>LTP</th>
-          <th>Volume</th>
-          <th>Score</th>
-          <th>Gap %</th>
-          <th>DATR %</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-<script>
-  function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-  }
-
-  function formatISTDateTime(str) {
-    return str;
-  }
-
-  let lastGeneratedAt = null;
-
-  function loadBreakoutData() {
-  fetch("breakout_stocks.json")
-    .then(response => response.json())
-    .then(data => {
-      if (!data.length) return;
-
-      const currentGeneratedAt = data[0].generated_at;
-      if (lastGeneratedAt === currentGeneratedAt) {
-        console.log("⏳ No data change detected, skipping reload.");
-        return; // Skip updating the table
-      }
-
-      lastGeneratedAt = currentGeneratedAt;
-
-      const tbody = document.querySelector("#breakoutTable tbody");
-      tbody.innerHTML = "";
-
-      let total = data.length;
-      let maxScore = 0;
-      let maxGap = 0;
-
-      document.getElementById("lastUpdatedTime").textContent = formatISTDateTime(currentGeneratedAt);
-
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="symbol"><a href="#">${row.symbol}</a></td>
-          <td>${row.breakout_time}</td>
-          <td>${row.type.toUpperCase()}</td>
-          <td>${row.high_9_15}</td>
-          <td>${row.low_9_15}</td>
-          <td>${row.ltp_at_breakout}</td>
-          <td>${row.volume}</td>
-          <td>${row.score}</td>
-          <td>${parseFloat(row.gap_pct).toFixed(2)}%</td>
-          <td>${row.datr}</td>
-        `;
-        tbody.appendChild(tr);
-
-        if (row.score > maxScore) maxScore = row.score;
-        if (row.gap_pct > maxGap) maxGap = row.gap_pct;
-      });
-
-      document.getElementById("total").textContent = total;
-      document.getElementById("score").textContent = maxScore;
-      document.getElementById("gap").textContent = maxGap.toFixed(2) + "%";
-
-      if ($.fn.DataTable.isDataTable('#breakoutTable')) {
-        $('#breakoutTable').DataTable().destroy();
-      }
-
-      $('#breakoutTable').DataTable({
-        paging: false,
-        searching: true,
-        info: false,
-        order: [[1, 'desc']],
-        scrollX: true
-      });
-    });
-}
+    <script>
+        // --- Theme Manager ---
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
 
 
-  function isMarketClosed() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const day = now.getDay(); // Sunday = 0, Saturday = 6
+        // --- Market Clock & Refresh Timer ---
+        function isMarketOpen() {
+            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+            const day = now.getDay();
+            const hour = now.getHours();
+            const minutes = now.getMinutes();
+            if (day === 0 || day === 6) return false; // Weekend
+            return (hour > 9 || (hour === 9 && minutes >= 15)) && (hour < 15 || (hour === 15 && minutes <= 30));
+        }
 
-    if (day === 0 || day === 6) return true;
-    const currentTime = hours * 60 + minutes;
-    const openTime = 9 * 60 + 15;
-    const closeTime = 15 * 60 + 30;
+        function updateMarketStatus() {
+            const el = document.getElementById("marketStatus");
+            if (isMarketOpen()) {
+                el.textContent = "Market Open";
+                el.classList.remove("status-closed");
+                el.classList.add("status-open");
+            } else {
+                el.textContent = "Market Closed";
+                el.classList.remove("status-open");
+                el.classList.add("status-closed");
+            }
+        }
 
-    return currentTime < openTime || currentTime > closeTime;
-  }
+        function startRefreshCountdown(seconds) {
+            let t = seconds;
+            const el = document.getElementById("refreshTimer");
+            function tick() {
+                const m = String(Math.floor(t / 60)).padStart(2, '0');
+                const s = String(t % 60).padStart(2, '0');
+                el.textContent = `Next refresh: ${m}:${s}`;
+                if (t > 0) { t--; setTimeout(tick, 1000); }
+            }
+            tick();
+        }
 
-  function updateMarketStatus() {
-    const status = isMarketClosed() ? "Market Closed" : "Market Open";
-    document.getElementById("marketStatus").textContent = status;
-  }
+        // --- Data Loading and Rendering ---
+        function renderTable(tableId, url, countId) {
+            const table = $(`#${tableId}`).DataTable();
+            // Append a unique timestamp to the URL to prevent caching
+            const cacheBustedUrl = `${url}?v=${new Date().getTime()}`;
+            fetch(`${cacheBustedUrl}`) // Cache buster `${url}?v=${new Date().getTime()}`
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("lastUpdatedTime").textContent = `Last updated: ${data.generated_at}`;
+                    document.getElementById(countId).textContent = data.breakouts.length;
 
-  function startRefreshCountdown(intervalSeconds) {
-    const refreshEl = document.getElementById("refreshTimer");
-    let remaining = intervalSeconds;
+                    table.clear();
+                    if (data.breakouts.length === 0) {
+                        table.draw(); // Redraw empty table
+                        return;
+                    }
 
-    function update() {
-      const min = String(Math.floor(remaining / 60)).padStart(2, '0');
-      const sec = String(remaining % 60).padStart(2, '0');
-      refreshEl.textContent = `Next refresh in: ${min}:${sec}`;
-      if (remaining > 0) {
-        remaining--;
-        setTimeout(update, 1000);
-      }
-    }
+                    data.breakouts.forEach(row => {
+                        const typeBadge = row.type === 'UP'
+                            ? '<span class="badge badge-up">BUY</span>'
+                            : '<span class="badge badge-down">SELL</span>';
 
-    update();
-  }
+                        const scoreStars = '⭐️'.repeat(row.score);
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark" || savedTheme === null) {
-      document.body.classList.add("dark-mode");
-    }
+                        table.row.add([
+                            row.symbol_html,
+                            typeBadge,
+                            scoreStars,
+                            row.breakout_price,
+                            row.stop_loss,
+                            row.target,
+                            row.rr_ratio,
+                            row.breakout_time
+                        ]).node().classList.add(row.type === 'UP' ? 'up-breakout' : 'down-breakout');
+                    });
+                    table.draw();
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById(countId).textContent = "Error";
+                    // Optionally display an error in the table
+                });
+        }
 
-    loadBreakoutData();
-    updateMarketStatus();
-    startRefreshCountdown(10); // Refresh countdown every 10s
-    setInterval(() => {
-      if (!isMarketClosed()) {
-        loadBreakoutData();
-        startRefreshCountdown(10);
-      } else {
-        document.getElementById("refreshTimer").textContent = "Next refresh in: --:--";
-      }
-      updateMarketStatus();
-    }, 10000);
-  });
-</script>
+        function initializeAndLoadData() {
+            ['niftyTable', 'othersTable'].forEach(id => {
+                if (!$.fn.DataTable.isDataTable(`#${id}`)) {
+                    $(`#${id}`).DataTable({
+                        paging: false,
+                        searching: true,
+                        info: false,
+                        order: [[2, 'desc']], // Default sort by Score descending
+                        scrollX: true
+                    });
+                }
+            });
+            renderTable("niftyTable", "nifty50_breakouts.json", "niftyCount");
+            renderTable("othersTable", "others_breakouts.json", "othersCount");
+        }
 
+        // --- Main Execution ---
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeAndLoadData();
+            updateMarketStatus();
+
+            // Auto-refresh every 30 seconds if market is open
+            const REFRESH_INTERVAL = 30000;
+            setInterval(() => {
+                updateMarketStatus();
+                if (isMarketOpen()) {
+                    initializeAndLoadData();
+                    startRefreshCountdown(REFRESH_INTERVAL / 1000);
+                } else {
+                    document.getElementById("refreshTimer").textContent = "Next refresh: --:--";
+                }
+            }, REFRESH_INTERVAL);
+
+            // Fix DataTables header misalignment on tab switch
+            document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(btn => {
+                btn.addEventListener('shown.bs.tab', () => $($.fn.dataTable.tables(true)).DataTable().columns.adjust());
+            });
+        });
+    </script>
 </body>
 </html>
